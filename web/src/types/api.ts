@@ -67,6 +67,26 @@ export interface RefundPayload {
   idempotencyKey: string;
 }
 
+export interface CreateVoiceChargePayload {
+  customerId: string;
+  utterance: string;
+  currency: Currency;
+  idempotencyKey: string;
+}
+
+export type VoiceChargeResult =
+  | {
+      status: 'CHARGED';
+      paymentId: string;
+      invoiceId: string;
+      payerName: string;
+      amountInCents: number;
+      currency: Currency;
+      method: PaymentMethod;
+      paymentStatus: PaymentStatus;
+    }
+  | { status: 'UNCLEAR'; reason: string };
+
 export interface ApiErrorBody {
   error: string;
   message: string;

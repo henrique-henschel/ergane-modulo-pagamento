@@ -6,6 +6,7 @@ import { InvoiceForm } from '../features/invoices/InvoiceForm';
 import { InvoiceTable } from '../features/invoices/InvoiceTable';
 import { ChargeDialog } from '../features/payments/ChargeDialog';
 import { PaymentTable } from '../features/payments/PaymentTable';
+import { VoiceBillingPanel } from '../features/voice/VoiceBillingPanel';
 import { useQuery } from '../hooks/useAsync';
 import { api } from '../lib/apiClient';
 import type { Invoice } from '../types/api';
@@ -37,6 +38,8 @@ export function DashboardPage() {
   return (
     <div className="erg-stack">
       <LiveRegion message={announcement} />
+
+      <VoiceBillingPanel onCharged={refreshAll} />
 
       <section className="erg-card" aria-labelledby="titulo-nova-fatura">
         <div className="erg-card__header">

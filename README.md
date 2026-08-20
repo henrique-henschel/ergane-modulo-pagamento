@@ -45,6 +45,11 @@ O domínio não importa nada das outras camadas.
 - **Estornos validados antes do gateway.** O saldo estornável é conferido no caso de uso, para
   não aceitar externamente um estorno que a entidade recusaria depois.
 - **Pagamento recusado é persistido.** Status `FAILED` fica gravado, preservando o histórico.
+- **Saída de LLM é entrada não confiável.** O JSON do Gemini passa por validação zod
+  antes de virar cobrança, e a conversão reais→centavos acontece na fronteira: daí
+  para dentro, dinheiro nunca é float.
+- **Fala ambígua não é erro.** `UNCLEAR` volta com 200 e um motivo em português; só
+  falha de infraestrutura (Gemini fora do ar) vira `502`.
 
 ## Como rodar
 
@@ -77,6 +82,32 @@ O Vite encaminha `/api` para `http://localhost:3000`, então não há CORS em de
 | GET    | `/api/payments?customerId=…`        | Lista cobranças do cliente       |
 | GET    | `/api/payments/:id`                 | Consulta um pagamento            |
 | POST   | `/api/payments/:id/refunds`         | Estorna total ou parcialmente    |
+| POST   | `/api/voice-charges`                | Cobra a partir de uma frase falada |
+
+### Cobrança por voz
+
+`POST /api/voice-charges` recebe a transcrição de uma fala e devolve **um de dois
+resultados**, ambos esperados:
+
+```bash
+# Fala entendida → 201
+curl -X POST http://localhost:3000/api/voice-charges \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "customerId": "8f14e45f-ceea-467a-9c1e-1b1f1f1f1f1f",
+    "utterance": "cobrar cento e cinquenta reais da Maria no pix",
+    "idempotencyKey": "cobranca-voz-001"
+  }'
+# {"status":"CHARGED","payerName":"Maria","amountInCents":15000,"method":"PIX",...}
+
+# Fala ambígua → 200 (não é erro: o motivo é lido em voz alta ao usuário)
+# {"status":"UNCLEAR","reason":"Não entendi o valor. Repita dizendo quanto quer cobrar."}
+```
+
+A interpretação usa o **Google Gemini**, atrás da porta `BillingIntentParser`. A
+`GEMINI_API_KEY` fica só no servidor — o navegador conversa apenas com `/api` do
+Ergane. Sem a chave, o módulo sobe com um interpretador local por regex em vez de
+falhar; `GET /health` informa qual está ativo (`"intentParser": "gemini" | "stub"`).
 
 ### Exemplo
 
@@ -114,6 +145,7 @@ curl -X POST http://localhost:3000/api/payments/<paymentId>/refunds \
 | 404  | `NOT_FOUND`        | Fatura ou pagamento inexistente               |
 | 422  | `DOMAIN_ERROR`     | Regra de negócio violada (ex.: estorno acima do saldo) |
 | 500  | `INTERNAL_ERROR`   | Falha não tratada                             |
+| 502  | `UPSTREAM_ERROR`   | Dependência externa falhou (ex.: Gemini fora do ar) |
 
 ## Estado atual e próximos passos
 

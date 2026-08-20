@@ -1,6 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import { ZodError } from 'zod';
-import { DomainError, NotFoundError } from '../../../domain/shared/DomainError';
+import {
+  DomainError,
+  ExternalServiceError,
+  NotFoundError,
+} from '../../../domain/shared/DomainError';
 
 /** Traduz erros de domínio/validação em respostas HTTP consistentes. */
 export function errorHandler(
@@ -25,6 +29,11 @@ export function errorHandler(
 
   if (err instanceof DomainError) {
     res.status(422).json({ error: 'DOMAIN_ERROR', message: err.message });
+    return;
+  }
+
+  if (err instanceof ExternalServiceError) {
+    res.status(502).json({ error: 'UPSTREAM_ERROR', message: err.message });
     return;
   }
 

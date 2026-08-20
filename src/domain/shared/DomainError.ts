@@ -13,3 +13,14 @@ export class NotFoundError extends Error {
     this.name = 'NotFoundError';
   }
 }
+
+/**
+ * Falha de um serviço de terceiro (gateway, LLM). Mapeado para HTTP 502: o
+ * pedido estava correto, quem falhou foi a dependência externa.
+ */
+export class ExternalServiceError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ExternalServiceError';
+  }
+}

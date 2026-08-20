@@ -2,9 +2,11 @@ import type {
   ApiErrorBody,
   CreateInvoicePayload,
   CreatePaymentPayload,
+  CreateVoiceChargePayload,
   Invoice,
   Payment,
   RefundPayload,
+  VoiceChargeResult,
 } from '../types/api';
 
 const BASE_URL = '/api';
@@ -87,5 +89,13 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(payload),
     });
+  },
+
+  /**
+   * Envia a transcrição da fala. A chave do Gemini fica no servidor — o
+   * navegador só conversa com o próprio módulo de pagamentos.
+   */
+  createVoiceCharge(payload: CreateVoiceChargePayload): Promise<VoiceChargeResult> {
+    return request('/voice-charges', { method: 'POST', body: JSON.stringify(payload) });
   },
 };

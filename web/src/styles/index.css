@@ -690,6 +690,149 @@ textarea {
   color: var(--color-text-muted);
 }
 
+/* --- Cobrança por voz ---------------------------------------------------
+   Cores escolhidas para leitura sob luz solar direta: os três estados do
+   botão contrastam ≥ 7:1 com seu texto, e nenhum depende só de matiz —
+   o rótulo muda junto com a cor.
+   ------------------------------------------------------------------------ */
+.erg-voice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: center;
+  text-align: center;
+}
+
+.erg-voice__button {
+  display: inline-flex;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 26rem;
+  /* Alvo de toque generoso: bem acima dos 44px mínimos, para uso na rua. */
+  min-height: 4.5rem;
+  padding: var(--space-4) var(--space-5);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  background: #10502a;
+  border: 2px solid transparent;
+  border-radius: var(--radius-lg);
+  transition: background-color 120ms ease-out;
+}
+
+.erg-voice__button:hover:not(:disabled) {
+  background: #0b3d20;
+}
+
+.erg-voice__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.erg-voice__button--recording {
+  color: #ffffff;
+  background: #8a1620;
+  animation: erg-pulse 1.4s ease-in-out infinite;
+}
+
+.erg-voice__button--processing {
+  color: #ffffff;
+  background: #17398f;
+}
+
+.erg-voice__button--error {
+  color: #ffffff;
+  background: #8a1620;
+}
+
+.erg-voice__icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.erg-voice__hint {
+  max-width: 30rem;
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+}
+
+.erg-voice__transcript {
+  padding: var(--space-3);
+  margin-bottom: var(--space-4);
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+}
+
+@keyframes erg-pulse {
+  50% {
+    box-shadow: 0 0 0 0.75rem rgb(138 22 32 / 25%);
+  }
+}
+
+/* --- Card de confirmação ------------------------------------------------ */
+.erg-success-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-items: flex-start;
+  padding: var(--space-5);
+  background: var(--tone-success-bg);
+  border: 2px solid var(--tone-success-fg);
+  border-radius: var(--radius-lg);
+}
+
+.erg-success-card__header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.erg-success-card__title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--tone-success-fg);
+}
+
+.erg-success-card__amount {
+  font-size: 2.25rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  color: var(--color-text);
+}
+
+.erg-success-card__qr {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  margin: 0;
+}
+
+.erg-qr-placeholder {
+  display: grid;
+  place-items: center;
+  width: 5.5rem;
+  height: 5.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: 2px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+
+.erg-success-card__qr-caption {
+  max-width: 18rem;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
 /* --- Item de lista selecionável ----------------------------------------- */
 .erg-selectable {
   width: 100%;

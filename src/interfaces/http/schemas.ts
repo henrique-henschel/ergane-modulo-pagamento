@@ -34,6 +34,15 @@ export const idParamSchema = z.object({
   id: z.string().uuid(),
 });
 
+export const createChargeFromUtteranceSchema = z.object({
+  customerId: z.string().uuid(),
+  // Teto generoso para uma frase falada, e barreira contra payload abusivo
+  // chegando a um serviço cobrado por token.
+  utterance: z.string().trim().min(1).max(500),
+  currency: currency.default('BRL'),
+  idempotencyKey: z.string().min(8).max(128),
+});
+
 export const listInvoicesQuerySchema = z.object({
   customerId: z.string().uuid(),
 });

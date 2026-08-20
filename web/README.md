@@ -15,7 +15,8 @@ src/
 ├── components/ui/     Primitivas: Button, Field, Alert, Dialog, StatusBadge…
 ├── features/
 │   ├── invoices/      InvoiceForm, InvoiceTable
-│   └── payments/      ChargeDialog, PaymentTable, RefundForm
+│   ├── payments/      ChargeDialog, PaymentTable, RefundForm
+│   └── voice/         VoiceBillingPanel, VoiceRecordButton, SuccessCard
 ├── pages/             DashboardPage, PaymentDetailPage
 └── styles/index.css   Tokens + primitivas (tema claro/escuro)
 ```
@@ -58,6 +59,35 @@ npm run typecheck
   e o erro dele é exibido como veio.
 - **Erro de gateway não é erro de aplicação.** Uma cobrança recusada volta como
   pagamento `FAILED` e aparece na lista, não como falha da tela.
+
+## Cobrança por voz
+
+O microempreendedor toca o botão, fala "cobrar cento e cinquenta da Maria no Pix", e
+a cobrança é registrada. Usa a **Web Speech API nativa do navegador** — nenhuma
+dependência nova.
+
+| Peça | Papel |
+|---|---|
+| `useVoiceBilling` | Todo o ciclo `idle → recording → processing → success/error`: gravação, chamada à API e síntese de voz |
+| `VoiceRecordButton` | Só renderiza o estado recebido por props; não conhece a Web Speech API |
+| `SuccessCard` | Nome, valor em BRL, método e o espaço reservado do QR Code |
+| `VoiceBillingPanel` | Liga o hook aos dois componentes — o único que decide *o que* mostrar |
+
+- **A chave do Gemini nunca chega ao navegador.** O hook chama `/api/voice-charges`;
+  o servidor fala com o Gemini. Um `API_KEY` no bundle seria legível por qualquer
+  pessoa que abrisse o app.
+- **Erros são falados** via `speechSynthesis` em `pt-BR`, porque quem cobra na rua
+  costuma estar de mãos ocupadas — e continuam visíveis na tela.
+- **Sucesso desmonta o botão** e dá lugar ao card, como especificado.
+- **Alvo de toque de 4,5rem** (72px) no botão principal — bem acima dos 44px mínimos —
+  e paleta de alto contraste para leitura sob sol direto.
+- **Sem suporte a voz?** O painel avisa, desabilita o botão e o resto do console segue
+  funcionando. O reconhecimento exige navegador Chromium.
+
+> **Nota de acessibilidade:** para quem usa leitor de tela, a mensagem de erro chega
+> duas vezes — pela síntese de voz e pela região viva. Mantivemos as duas porque o
+> público-alvo opera de olhos livres; se isso incomodar, o próximo passo é uma
+> preferência de usuário para desligar a fala.
 
 ## Acessibilidade
 
