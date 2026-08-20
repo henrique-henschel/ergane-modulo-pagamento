@@ -220,7 +220,7 @@ de cada evento `assistant`), sem estimativas manuais.*
 ---
 
 ## 6. Link de Acesso ao Deploy
-Acesse a aplicação em funcionamento real: [https://escola-de-ti-feature.vercel.app](https://escola-de-ti-feature.vercel.app)
+Acesse a aplicação em funcionamento real: [https://ergane-modulo-pagamento.vercel.app/](https://ergane-modulo-pagamento.vercel.app/)
 
 Módulo de pagamentos do SaaS Ergane. O back-end (Node.js + TypeScript) segue arquitetura
 limpa: o domínio não conhece framework nem banco, e as dependências apontam sempre de fora
