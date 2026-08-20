@@ -75,6 +75,7 @@ O Vite encaminha `/api` para `http://localhost:3000`, então não há CORS em de
 | GET    | `/api/invoices/:id`                 | Consulta uma fatura              |
 | POST   | `/api/payments`                     | Cobra uma fatura em aberto       |
 | GET    | `/api/payments?customerId=…`        | Lista cobranças do cliente       |
+| GET    | `/api/payments/monthly-total?customerId=…` | Total do mês, por moeda   |
 | GET    | `/api/payments/:id`                 | Consulta um pagamento            |
 | POST   | `/api/payments/:id/refunds`         | Estorna total ou parcialmente    |
 

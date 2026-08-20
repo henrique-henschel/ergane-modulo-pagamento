@@ -7,6 +7,7 @@ import {
   createPaymentSchema,
   idParamSchema,
   listPaymentsQuerySchema,
+  monthlyPaymentTotalQuerySchema,
   processRefundSchema,
 } from '../schemas';
 
@@ -35,6 +36,26 @@ export function paymentRoutes(container: Container): Router {
         ...(query.invoiceId !== undefined && { invoiceId: query.invoiceId as InvoiceId }),
       });
       res.json({ data: payments.map(presentPayment) });
+    }),
+  );
+
+  /*
+   * Precisa vir antes de '/:id': o Express casa na ordem de registro, e
+   * '/monthly-total' cairia no parâmetro, sendo reprovado como uuid inválido.
+   */
+  router.get(
+    '/monthly-total',
+    asyncHandler(async (req, res) => {
+      const query = monthlyPaymentTotalQuerySchema.parse(req.query);
+      const now = new Date();
+
+      const result = await container.getMonthlyPaymentTotal.execute({
+        customerId: query.customerId as CustomerId,
+        year: query.year ?? now.getUTCFullYear(),
+        month: query.month ?? now.getUTCMonth() + 1,
+      });
+
+      res.json(result);
     }),
   );
 

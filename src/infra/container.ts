@@ -2,6 +2,7 @@ import { systemClock } from '../application/ports/Clock';
 import { CreateInvoice } from '../application/use-cases/CreateInvoice';
 import { CreatePayment } from '../application/use-cases/CreatePayment';
 import { GetInvoice } from '../application/use-cases/GetInvoice';
+import { GetMonthlyPaymentTotal } from '../application/use-cases/GetMonthlyPaymentTotal';
 import { GetPayment } from '../application/use-cases/GetPayment';
 import { ListInvoices } from '../application/use-cases/ListInvoices';
 import { ListPayments } from '../application/use-cases/ListPayments';
@@ -16,6 +17,7 @@ export interface Container {
   getInvoice: GetInvoice;
   createPayment: CreatePayment;
   listPayments: ListPayments;
+  getMonthlyPaymentTotal: GetMonthlyPaymentTotal;
   getPayment: GetPayment;
   processRefund: ProcessRefund;
 }
@@ -33,6 +35,7 @@ export function buildContainer(): Container {
     getInvoice: new GetInvoice(invoices),
     createPayment: new CreatePayment(invoices, payments, gateway, clock),
     listPayments: new ListPayments(payments),
+    getMonthlyPaymentTotal: new GetMonthlyPaymentTotal(payments),
     getPayment: new GetPayment(payments),
     processRefund: new ProcessRefund(payments, gateway, clock),
   };

@@ -42,3 +42,10 @@ export const listPaymentsQuerySchema = z.object({
   customerId: z.string().uuid(),
   invoiceId: z.string().uuid().optional(),
 });
+
+export const monthlyPaymentTotalQuerySchema = z.object({
+  customerId: z.string().uuid(),
+  // Ausentes, assume-se o mês corrente em UTC.
+  year: z.coerce.number().int().min(1970).optional(),
+  month: z.coerce.number().int().min(1).max(12).optional(),
+});
