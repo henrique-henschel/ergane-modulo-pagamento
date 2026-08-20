@@ -9,7 +9,7 @@ export default defineConfig({
     // para o módulo de pagamentos.
     proxy: {
       '/api': {
-        target: process.env.API_URL ?? 'http://localhost:3000',
+        target: process.env.API_URL ?? 'https://modulo-pagamento-ia.onrender.com',
         changeOrigin: true,
       },
     },

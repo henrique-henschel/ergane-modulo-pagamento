@@ -7,7 +7,7 @@ import type {
   RefundPayload,
 } from '../types/api';
 
-const BASE_URL = '/api';
+const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ?? '/api';
 
 /** Erro de API já traduzido: carrega status HTTP, código e detalhes de validação. */
 export class ApiError extends Error {
