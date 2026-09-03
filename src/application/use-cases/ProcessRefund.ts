@@ -1,3 +1,5 @@
+import { RefundProcessedEvent } from '../../domain/events/DomainEvent';
+import { EventPublisher } from '../../domain/events/EventPublisher';
 import { PaymentRepository } from '../../domain/repositories/PaymentRepository';
 import { DomainError, NotFoundError } from '../../domain/shared/DomainError';
 import { PaymentId } from '../../domain/shared/Identifier';
@@ -27,6 +29,7 @@ export class ProcessRefund {
     private readonly payments: PaymentRepository,
     private readonly gateway: PaymentGateway,
     private readonly clock: Clock,
+    private readonly eventPublisher?: EventPublisher,
   ) {}
 
   async execute(input: ProcessRefundInput): Promise<ProcessRefundOutput> {
@@ -46,8 +49,6 @@ export class ProcessRefund {
         ? payment.refundableAmount
         : Money.fromCents(input.amountInCents, payment.amount.currency);
 
-    // Valida contra o domínio antes de chamar o gateway, evitando estornos
-    // aceitos externamente que a entidade rejeitaria depois.
     if (amount.isGreaterThan(payment.refundableAmount)) {
       throw new DomainError(
         `Valor do estorno excede o saldo estornável (${payment.refundableAmount.amountInCents} centavos).`,
@@ -66,6 +67,21 @@ export class ProcessRefund {
 
     payment.registerRefund(amount, this.clock.now());
     await this.payments.save(payment);
+
+    if (this.eventPublisher) {
+      await this.eventPublisher.publish(
+        new RefundProcessedEvent(
+          {
+            paymentId: payment.id,
+            customerId: payment.customerId,
+            amountInCents: amount.amountInCents,
+            currency: amount.currency,
+            reason: input.reason,
+          },
+          this.clock.now(),
+        ),
+      );
+    }
 
     return {
       paymentId: payment.id,
