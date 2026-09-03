@@ -1,4 +1,6 @@
 import { Invoice } from '../../domain/entities/Invoice';
+import { InvoiceCreatedEvent } from '../../domain/events/DomainEvent';
+import { EventPublisher } from '../../domain/events/EventPublisher';
 import { InvoiceRepository } from '../../domain/repositories/InvoiceRepository';
 import { CustomerId } from '../../domain/shared/Identifier';
 import { Currency, Money } from '../../domain/shared/Money';
@@ -22,6 +24,7 @@ export class CreateInvoice {
   constructor(
     private readonly invoices: InvoiceRepository,
     private readonly clock: Clock,
+    private readonly eventPublisher?: EventPublisher,
   ) {}
 
   async execute(input: CreateInvoiceInput): Promise<CreateInvoiceOutput> {
@@ -38,6 +41,21 @@ export class CreateInvoice {
     });
 
     await this.invoices.save(invoice);
+
+    if (this.eventPublisher) {
+      await this.eventPublisher.publish(
+        new InvoiceCreatedEvent(
+          {
+            invoiceId: invoice.id,
+            customerId: invoice.customerId,
+            currency: invoice.currency,
+            totalInCents: invoice.total.amountInCents,
+            dueDate: invoice.dueDate.toISOString(),
+          },
+          this.clock.now(),
+        ),
+      );
+    }
 
     return {
       invoiceId: invoice.id,

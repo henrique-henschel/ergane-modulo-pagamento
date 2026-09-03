@@ -1,4 +1,6 @@
 import { Payment, PaymentMethod } from '../../domain/entities/Payment';
+import { PaymentCreatedEvent, PaymentFailedEvent } from '../../domain/events/DomainEvent';
+import { EventPublisher } from '../../domain/events/EventPublisher';
 import { InvoiceRepository } from '../../domain/repositories/InvoiceRepository';
 import { PaymentRepository } from '../../domain/repositories/PaymentRepository';
 import { DomainError, NotFoundError } from '../../domain/shared/DomainError';
@@ -31,6 +33,7 @@ export class CreatePayment {
     private readonly payments: PaymentRepository,
     private readonly gateway: PaymentGateway,
     private readonly clock: Clock,
+    private readonly eventPublisher?: EventPublisher,
   ) {}
 
   async execute(input: CreatePaymentInput): Promise<CreatePaymentOutput> {
@@ -66,8 +69,39 @@ export class CreatePayment {
       payment.markAsPaid(result.transactionId, this.clock.now());
       invoice.markAsPaid(this.clock.now());
       await this.invoices.save(invoice);
+
+      if (this.eventPublisher) {
+        await this.eventPublisher.publish(
+          new PaymentCreatedEvent(
+            {
+              paymentId: payment.id,
+              invoiceId: invoice.id,
+              customerId: invoice.customerId,
+              amountInCents: payment.amount.amountInCents,
+              currency: payment.amount.currency,
+              method: payment.method,
+              status: payment.status,
+            },
+            this.clock.now(),
+          ),
+        );
+      }
     } else {
       payment.markAsFailed(result.reason, this.clock.now());
+
+      if (this.eventPublisher) {
+        await this.eventPublisher.publish(
+          new PaymentFailedEvent(
+            {
+              paymentId: payment.id,
+              invoiceId: invoice.id,
+              customerId: invoice.customerId,
+              reason: result.reason,
+            },
+            this.clock.now(),
+          ),
+        );
+      }
     }
 
     await this.payments.save(payment);
